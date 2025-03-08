@@ -9,10 +9,10 @@ RegisterNetEvent('jobselector:setJob', function(job)
     end
 end)
 
-RegisterNetEvent('jobselector:removeJob', function(job)
+RegisterNetEvent('jobselector:removeJob', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    if Player and Player.job.name == job then
+    if Player then
         Player.Functions.SetJob('unemployed', 0)
         TriggerClientEvent('QBCore:Notify', src, "You have resigned from your job!", "error")
     end
