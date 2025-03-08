@@ -11,34 +11,18 @@ Citizen.CreateThread(function()
     FreezeEntityPosition(npc, true)
     SetBlockingOfNonTemporaryEvents(npc, true)
 
-    if Config.Target == "ox" then
-        exports.ox_target:addLocalEntity(npc, {
-            {
-                name = "job_selector",
-                label = "Talk to Job Manager",
-                icon = "fa-solid fa-briefcase",
-                event = "jobselector:openMenu"
-            }
-        })
-    else
-        exports['qb-target']:AddTargetEntity(npc, {
-            options = {
-                {
-                    type = "client",
-                    event = "jobselector:openMenu",
-                    icon = "fa-solid fa-briefcase",
-                    label = "Talk to Job Manager"
-                }
-            },
-            distance = 2.0
-        })
-    end
+    exports.ox_target:addLocalEntity(npc, {
+        {
+            name = "job_selector",
+            label = "Talk to Job Manager",
+            icon = "fa-solid fa-briefcase",
+            event = "jobselector:openMenu"
+        }
+    })
 end)
 
 RegisterNetEvent('jobselector:openMenu', function()
-    local Player = QBCore.Functions.GetPlayerData()
     local options = {}
-    
     for _, job in ipairs(Config.JobList) do
         table.insert(options, {
             title = job.label,
@@ -48,27 +32,14 @@ RegisterNetEvent('jobselector:openMenu', function()
             args = job.value
         })
     end
-    
-    local removeJobOptions = {}
-    if Player.job and Player.job.name ~= "unemployed" then
-        table.insert(removeJobOptions, {
-            title = "Resign from " .. Player.job.label,
-            description = "Remove this job",
-            icon = "fa-solid fa-user-slash",
-            event = "jobselector:requestRemoveJob",
-            args = Player.job.name
-        })
-    end
-    
-    if #removeJobOptions > 0 then
-        table.insert(options, {
-            title = "Resign from Job",
-            description = "Choose a job to resign from",
-            icon = "fa-solid fa-user-slash",
-            event = "jobselector:openRemoveJobMenu"
-        })
-    end
-    
+
+    table.insert(options, {
+        title = "Resign from Job",
+        description = "Remove your current job",
+        icon = "fa-solid fa-user-slash",
+        event = "jobselector:requestRemoveJob"
+    })
+
     lib.registerContext({
         id = 'job_selector_menu',
         title = 'Job Selector',
@@ -77,32 +48,10 @@ RegisterNetEvent('jobselector:openMenu', function()
     lib.showContext('job_selector_menu')
 end)
 
-RegisterNetEvent('jobselector:openRemoveJobMenu', function()
-    local Player = QBCore.Functions.GetPlayerData()
-    local options = {}
-    
-    if Player.job and Player.job.name ~= "unemployed" then
-        table.insert(options, {
-            title = "Resign from " .. Player.job.label,
-            description = "Confirm job removal",
-            icon = "fa-solid fa-user-slash",
-            event = "jobselector:requestRemoveJob",
-            args = Player.job.name
-        })
-    end
-    
-    lib.registerContext({
-        id = 'remove_job_menu',
-        title = 'Remove Job',
-        options = options
-    })
-    lib.showContext('remove_job_menu')
-end)
-
 RegisterNetEvent('jobselector:requestSetJob', function(job)
     TriggerServerEvent('jobselector:setJob', job)
 end)
 
-RegisterNetEvent('jobselector:requestRemoveJob', function(job)
-    TriggerServerEvent('jobselector:removeJob', job)
+RegisterNetEvent('jobselector:requestRemoveJob', function()
+    TriggerServerEvent('jobselector:removeJob')
 end)
